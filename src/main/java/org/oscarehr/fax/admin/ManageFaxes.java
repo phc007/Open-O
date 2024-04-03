@@ -263,4 +263,36 @@ public class ManageFaxes extends FaxAction {
 		faxJobDao.merge(faxJob);
 	}
 
+	public void restartFaxScheduler(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null)) {
+        	throw new SecurityException("missing required security object (_admin)");
+        }
+
+		faxManager.restartFaxScheduler(LoggedInInfo.getLoggedInInfoFromSession(request));
+	}
+
+	public void isFaxSchedulerRunning(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		if(!securityInfoManager.hasPrivilege(loggedInInfo, "_admin", "r", null)) {
+        	throw new SecurityException("missing required security object (_admin)");
+        }
+
+		Boolean isRunning = faxManager.isFaxSchedulerRunning(loggedInInfo);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("isRunning", isRunning);
+		jsonResponse(response, jsonObject);
+	}
+
+	public void getLastFaxSentDetails(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		if(!securityInfoManager.hasPrivilege(loggedInInfo, "_admin", "r", null)) {
+        	throw new SecurityException("missing required security object (_admin)");
+        }
+
+		String lastFaxDetails = faxManager.getLastFaxSentFromGetwayDetails(loggedInInfo);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("lastFaxDetails", lastFaxDetails);
+		jsonResponse(response, jsonObject);
+	}
+
 }

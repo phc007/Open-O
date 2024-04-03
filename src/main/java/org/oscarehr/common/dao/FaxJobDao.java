@@ -157,4 +157,16 @@ public class FaxJobDao extends AbstractDao<FaxJob> {
     	return faxJobList;
     }
 
+	@SuppressWarnings("unchecked")
+	public FaxJob getLastFaxSentFromGateway() {
+		Query query = entityManager.createQuery("select job from FaxJob job where job.status = :status order by job.stamp desc");
+    	
+    	query.setParameter("status", FaxJob.STATUS.SENT);
+		query.setMaxResults(1);
+
+		List<FaxJob> faxJobs = query.getResultList();
+		if (faxJobs.isEmpty()) { return null;}
+		return faxJobs.get(0);
+	}
+
 }

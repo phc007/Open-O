@@ -47,6 +47,7 @@ import org.oscarehr.common.model.FaxJob;
 import org.oscarehr.common.model.FaxJob.STATUS;
 import org.oscarehr.fax.core.FaxAccount;
 import org.oscarehr.fax.core.FaxRecipient;
+import org.oscarehr.fax.core.FaxSchedulerJob;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -83,6 +84,9 @@ public class FaxManager {
 
 	@Autowired
 	private ClinicDAO clinicDAO;
+
+	@Autowired
+	private FaxSchedulerJob faxSchedulerJob;
 
 	private Logger logger = MiscUtils.getLogger();
 
@@ -727,5 +731,36 @@ public class FaxManager {
 		return success;
 	}
 
+	public void restartFaxScheduler(LoggedInInfo loggedInInfo) {
+		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_fax", SecurityInfoManager.WRITE, null)) {
+			throw new RuntimeException("missing required security object (_fax)");
+		}
+		faxSchedulerJob.restartTask();
+	}
+
+	public Boolean isFaxSchedulerRunning(LoggedInInfo loggedInInfo) {
+		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_fax", SecurityInfoManager.READ, null)) {
+			throw new RuntimeException("missing required security object (_fax)");
+		}
+		return faxSchedulerJob.isRunning();
+	}
+
+	public String getLastFaxSentFromGetwayDetails(LoggedInInfo loggedInInfo) {
+		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_fax", SecurityInfoManager.READ, null)) {
+			throw new RuntimeException("missing required security object (_fax)");
+		}
+
+		FaxJob faxJob = faxJobDao.getLastFaxSentFromGateway();
+		StringBuilder messageBuilder = new StringBuilder();
+
+		if (faxJob == null) { return messageBuilder.append("No fax has been sent to the Fax gateway").toString(); }
+
+		if (faxSchedulerJob.isRunning()) {
+			messageBuilder.append("Last Fax Sent to Fax Gateway at " + faxJob.getStamp());
+		} else {
+			messageBuilder.append("Last Fax Sent to Fax Gateway was at " + faxJob.getStamp());
+		}
+		return messageBuilder.toString();
+	}
 
 }
