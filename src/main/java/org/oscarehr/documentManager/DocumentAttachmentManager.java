@@ -267,7 +267,7 @@ public class DocumentAttachmentManager {
 			throw new PDFGenerationException("An error occurred while concatenating PDF.", e);
 		}
 		return path;
-	}
+	}	
 
 	public Path concatPDF(List<Path> pdfDocuments) throws PDFGenerationException {
 		ArrayList<Object> pdfDocumentList = new ArrayList<>();
@@ -333,16 +333,7 @@ public class DocumentAttachmentManager {
 		}
 	}
 
-	private Path concatPDF(ArrayList<Object> pdfDocumentList) throws PDFGenerationException {
-		Path path = null;
-		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			ConcatPDF.concat(pdfDocumentList, outputStream);
-			path = nioFileManager.saveTempFile("combinedPDF_" + new Date().getTime(), outputStream);
-		} catch (IOException e) {
-			throw new PDFGenerationException("An error occurred while concatenating PDF.", e);
-		}
-		return path;
-	}
+	
 
 	private String getDisplayLabName(LabResultData labResultData) {
 		String label = labResultData.getLabel() != null ? labResultData.getLabel() : "";
