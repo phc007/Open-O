@@ -217,7 +217,7 @@
 			if (errorMessage) {
 				alert("A preview of this document could not be generated.\n\n" + errorMessage);
 			} else {
-				alert("Failed to render PDF :( Please check logs for more details.");
+				alert("A preview of this document could not be generated.");
 			}
 			HideSpin();
 		}

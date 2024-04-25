@@ -12,11 +12,11 @@ document.addEventListener("DOMContentLoaded", function(){
 		addNavElement();
 		moveSubjectReverse();
 
-		// Add eForm attachments
-		addEFormAttachments();
-
-		// Resize the window based on the toolbar width
-		window.resizeTo(1100,1100);
+			// Add eForm attachments 
+			addEFormAttachments();
+			
+			// Resize the window based on the toolbar width
+			window.resizeTo(1150,1100);
 
 		// If download EForm
 		const isDownload = document.getElementById("isDownloadEForm") ? document.getElementById("isDownloadEForm").value : "false";
@@ -313,6 +313,35 @@ document.addEventListener("DOMContentLoaded", function(){
 		}
 
 		remoteSave();
+	}
+
+	/**
+	 * Adds a hidden input field into the eForm form with instructions to 
+	 * open the Oscar Email dialog.
+	 */
+	function remoteEmail() {
+		const hasValidRecipient = document.getElementById("hasValidRecipient").value;	
+		const emailConsentStatus = document.getElementById("emailConsentStatus").value;
+		const emailConsentName = document.getElementById("emailConsentName").value;
+
+		if (hasValidRecipient === "false") {
+			alert("Sorry - this patient does not have a valid email address in their demographic. Please update their demographic and try again." );
+			return;
+		}
+
+		if (emailConsentStatus !== "Explicit Opt-In") {
+			const userResponse = prompt("This patient has not explicitly opted-in: [" + emailConsentName + "]\nType 'Yes' to acknowledge you understand the risks before proceeding.", "No");
+			if (userResponse === null || userResponse.toLowerCase() !== 'yes') { return; }
+		}
+
+		const newElement = document.createElement("input");
+		newElement.setAttribute("id", "emailAction");
+		newElement.setAttribute("name", "emailEForm");
+		newElement.setAttribute("value", "true");
+		newElement.setAttribute("type", "hidden");
+		document.forms[0].appendChild(newElement);
+		remoteSave();
+	
 	}
 	
 	/**
@@ -719,6 +748,29 @@ document.addEventListener("DOMContentLoaded", function(){
 		if (!message) { message = "Failed to process eForm. Please refer to the server logs for more details." }
 		alert(message.replace(/\\n/g, "\n"));
 	}
+
+	/*
+	* Adjust the toolbar based on the window width by adding buttons in a new row for a responsive toolbar
+	*/
+	function moveToolbarButtons() {
+		let windowWidth = jQuery(window).width();
+		let inputGroup = jQuery("#input-group-btn-1");
+		const lastThreeButtons = inputGroup.find("button:gt(-5)");
+		const isWrappingApplied  = inputGroup.find(".row button");
+
+		let newRow = jQuery("<div class='row input-group-btn'></div>");
+			
+		if (windowWidth >= 1100 && isWrappingApplied.length !== 0) {
+			lastThreeButtons.unwrap();
+		} else if (windowWidth < 1100 && isWrappingApplied.length === 0) {
+			lastThreeButtons.wrapAll(newRow);
+		}
+	}
+
+	// Execute the function on window resize
+	jQuery(window).resize(function() {
+		moveToolbarButtons();
+	});
 
 	/*
 	 * Show or hide the loading spinner
