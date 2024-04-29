@@ -99,6 +99,11 @@
 			
 			return false;
 		});
+
+		isFaxSchedulerRunning();
+		getLastFaxSentDetails();
+		setInterval(isFaxSchedulerRunning, 1000);
+		setInterval(getLastFaxSentDetails, 5000);
 	});
 
 	function getPageCount(id, callback) {
@@ -262,6 +267,46 @@
 		$("#results").empty();
 		return false;
 	}
+
+	function isFaxSchedulerRunning() {
+		$.ajax({
+			url: $("#reportForm").attr("action"),
+			method: 'GET',
+			data: 'method=isFaxSchedulerRunning',
+			success: function(data) {
+				if (data.isRunning) {
+					$("#faxStatusTag").addClass("fax-status-tag-online").removeClass("fax-status-tag-offline");
+					$("#faxStatusTag").text("Online");
+				} else {
+					$("#faxStatusTag").addClass("fax-status-tag-offline").removeClass("fax-status-tag-online");
+					$("#faxStatusTag").text("Offline");
+				}
+			}
+		});
+	}
+
+	function getLastFaxSentDetails() {
+		$.ajax({
+			url: $("#reportForm").attr("action"),
+			method: 'GET',
+			data: 'method=getLastFaxSentDetails',
+			success: function(data) {
+				$("#lastFaxSentDetails").text(data.lastFaxDetails);
+			}
+		});
+	}
+
+	function rebootFaxSchedular() {
+		ShowSpin(true);
+		$.ajax({
+			url: $("#reportForm").attr("action"),
+			method: 'GET',
+			data: 'method=restartFaxScheduler',
+			success: function(data) {
+				HideSpin();
+			}
+		});
+	}
 	
 </script>
 <style type="text/css">
@@ -269,6 +314,40 @@
 		border:none;
 		margin:0px;
 		padding:0px;
+	}
+
+	.fax-scheduler {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 10px;
+	}
+
+	.fax-status-tag {
+        padding: 4px 6px;
+        font-size: 11px;
+        font-weight: 700;
+        background-color: #cefad0;
+        border-radius: 4px;
+        color: #008631;
+        margin-right: 5px;
+        cursor: pointer;
+        user-select: none;
+		display: inline-block;
+    }
+
+	.fax-status-tag-online {
+        background-color: #cefad0 !important;
+        color: #008631 !important;
+    }
+	
+    .fax-status-tag-offline {
+        background-color: #ffe1e1 !important;
+        color: #c30010 !important;
+    }
+
+	.reboot-fax-scheduler {
+		margin-left: auto;
 	}
 </style>
 
@@ -284,8 +363,22 @@
 
 		<input type="hidden" name="method" value="fetchFaxStatus" />
 	
+		<legend>Search Faxes</legend>
+
 		<div class="row">
-			<legend>Search Faxes</legend>
+			<div class="fax-scheduler span12">
+				<div class="fax-status-tag" id="faxStatusTag">
+					ONLINE
+				</div>
+				<div class="last-fax-sent-details" id="lastFaxSentDetails">
+				</div>
+				<div class="reboot-fax-scheduler">
+					<button type="button" class="btn btn-success" onclick="rebootFaxSchedular()"><i class="icon-refresh icon-white"></i> Reboot Service</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
 			 <div class="input-append span3" >
 
                 	<input class="span2" type="text" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" placeholder="From" id="dateBegin" name="dateBegin" required/>
