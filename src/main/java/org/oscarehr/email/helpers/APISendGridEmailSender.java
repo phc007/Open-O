@@ -2,18 +2,22 @@ package org.oscarehr.email.helpers;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.oscarehr.common.model.EmailAttachment;
 import org.oscarehr.common.model.EmailConfig;
@@ -27,7 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import oscar.util.StringUtils;
 
 public class APISendGridEmailSender {
     private LoggedInInfo loggedInInfo;
@@ -88,6 +91,8 @@ public class APISendGridEmailSender {
         addSubject(emailJson);
         addBody(emailJson);
         addAttachments(emailJson);
+        addAdditionalParams(emailJson);
+        addApiKey(emailJson);
         return emailJson.toString();
     }
 
@@ -145,6 +150,14 @@ public class APISendGridEmailSender {
         }
         emailJson.put("attachments", jsonAttachments);
     }
+    
+    private void addAdditionalParams(JSONObject emailJson) throws EmailSendingException {
+        emailJson.put("additionalParams", additionalParams);
+    }
+    
+    private void addApiKey(JSONObject emailJson) throws EmailSendingException {
+        emailJson.put("apiKey", getAPIKey());
+    }
 
     private String getAPIKey() throws EmailSendingException {
         String apiKey;
@@ -167,18 +180,6 @@ public class APISendGridEmailSender {
         } catch (IOException e) {
             throw new EmailSendingException("Invalid credentials configured for " + emailConfig.getSenderEmail());
         }
-
-        addAdditionalParams(endPointBuilder);
         return endPointBuilder.toString();
-    }
-
-    private void addAdditionalParams(StringBuilder endPointBuilder) throws EmailSendingException {
-        if (StringUtils.isNullOrEmpty(additionalParams)) { return; }
-        if (!additionalParams.startsWith("?")) { endPointBuilder.append("?"); }
-        try {
-            endPointBuilder.append(URLEncoder.encode(additionalParams, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new EmailSendingException("Unsupported encoding exception occurred: " + e.getMessage(), e);
-        }
     }
 }
