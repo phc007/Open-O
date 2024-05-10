@@ -1621,7 +1621,7 @@ function clearAppointmentDateAndTime() {
 	<input type="hidden" name="providerNo" value="<%=providerNo%>">
 	<% } %>
 	<input type="hidden" name="demographicNo" id="demographicNo" value="<%=demo%>">
-	<input type="hidden" name="requestId" value="<%=requestId%>">
+	<input type="hidden" name="requestId" id="requestId" value="<%=requestId%>">
 	<input type="hidden" name="ext_appNo" value="<%=request.getParameter("appNo") %>">
 	<input type="hidden" name="source" value="<%=(requestId!=null)?thisForm.getSource():request.getParameter("source") %>">
 	<input type="hidden" id="saved" value="false">
@@ -1752,8 +1752,9 @@ function clearAppointmentDateAndTime() {
 									<%-- <bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.attachDoc" /> --%>
 									<a href="javascript:void(0);" id="attachDocumentPanelBtn" title="Add Attachment"
 										data-poload="${ ctx }/previewDocs.do?method=fetchConsultDocuments&amp;demographicNo=<%=demo%>&amp;requestId=<%=requestId%>">
-										Show Attachments
+										Manage Attachments
 									</a>
+									<input type="hidden" id="isOceanEReferral" value="<%=thisForm.iseReferral()%>" />
 								<%
 							}
 							else
@@ -2837,9 +2838,9 @@ jQuery(document).ready(function(){
 					if (element.attr('data-version')) { expandLabVersionList(element.parent().parent().parent().find('.collapse-arrow')); }
 				});
 
-				// Disable all checkboxes in the attachment window if a consultation request is created using OceanMD.
+				// Disable all EncounterForm (form) checkboxes in the attachment window if a consultation request is created using OceanMD.
 				if (typeof disableFields !== 'undefined' && disableFields === true) {
-					jQuery('#attachDocumentsForm input[type="checkbox"]').prop('disabled', true);
+					jQuery("#formList input[type='checkbox']").prop("disabled", true);
 				}
 			}
 		}).dialog({
@@ -2909,6 +2910,9 @@ jQuery(document).ready(function(){
 						checkedElement.attr("class", checkedElementClass.split("_")[0] + "_check");
 					}
 				});
+
+				const isOceanEReferral = document.getElementById('isOceanEReferral');
+				if (isOceanEReferral !== null && isOceanEReferral.value.toLowerCase() === "true") { attachOceanAttachments(); }
 			}
 		});
 	})
