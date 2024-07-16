@@ -377,6 +377,15 @@ document.addEventListener("DOMContentLoaded", function(){
 			console.log("eForm needs to be saved.")
 			remoteSave();
 		}
+
+		/*
+		 * for situations when the eForm does not contain dirty form
+		 * detection; save it everytime.
+		 */
+		else if(typeof needToConfirm === 'undefined') {
+			remoteSave();
+		}
+
 	
 	}
 
