@@ -312,11 +312,13 @@
 
 			jQuery(document).ready(function () {
 				jQuery("table[id^='tblDocs']").DataTable({
-
+					ordering:true,
+					columnDefs: [{ orderable: false, targets: [0,8] }],
 					lengthMenu: [
-						[50, -1],
-						[50, 'All']
+						[ -1, 10, 20, 50, 100, 200],
+						['All', 10, 20, 50, 100, 200]
 					],
+					order: [[6, 'dsc']],
 					"language": {
 						"url": "<%=request.getContextPath() %>/library/DataTables/i18n/<bean:message key="global.i18nLanguagecode"/>.json"
 					}
@@ -325,13 +327,20 @@
 		</script>
 
 		<style>
-            :not(h2) {
-                line-height: 1 !important;
-                font-size: 12px !important;
+            :root *:not(h2) {
+                font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+                font-size: 12px;
+                overscroll-behavior: none;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
             }
 
             .panel-body {
 	            overflow: auto;
+            }
+
+            a {
+	            color:blue;
             }
 
 		</style>
@@ -440,7 +449,7 @@
 						</div>
 					</div>
 
-					<div id="documentsInnerDiv<%=i%>" class="panel-body table-responsive ">
+					<div id="documentsInnerDiv<%=i%>" class="panel-body">
 						<table id="tblDocs<%=i%>" class="table table-condensed table-striped">
 							<thead>
 							<tr>
@@ -470,9 +479,10 @@
 									<bean:message key="dms.documentReport.msgDate"/>
                                 </th>
 
-								<th></th>
+								<th>&nbsp;</th>
 							</tr>
 							</thead>
+							<tbody>
 							<%
 								for (int i2 = 0; i2 < category.size(); i2++) {
 									EDoc curdoc = (EDoc) category.get(i2);
@@ -486,6 +496,7 @@
 									} else {
 										contentType = curdoc.getContentType();
 									}
+									contentType = contentType.substring(0,3);
 									String dStatus = "";
 									if ((curdoc.getStatus() + "").compareTo("H") == 0) {
                                         dStatus = "html";
@@ -513,14 +524,14 @@
 									%>
                                     <a <%=curdoc.getStatus() == 'D' ? "style='text-decoration:line-through'" : ""%>
 										href="javascript:void(0);" title="<%=Encode.forHtmlAttribute(curdoc.getDescription())%>"
-										style="display: block;overflow-wrap: anywhere;word-break: break-all;overflow: hidden;text-overflow: ellipsis;text-decoration: none;"
+										style="word-break: break-word;overflow-wrap: anywhere;overflow: hidden;text-overflow: ellipsis;text-decoration: none;"
 										onclick="popupFocusPage(500,700,'<%=url%>','demographic_document');">
                                         <%=Encode.forHtml(curdoc.getDescription())%>
 								    </a>
                                 </td>
 								    <td>
 									    <div style="overflow:hidden; text-overflow: ellipsis;"
-									         title="<%=contentType%>" >
+									         title="<%=Encode.forHtmlAttribute(contentType)%>" >
 										    <%=Encode.forHtmlContent(contentType)%>
 									    </div>
 								    </td>
@@ -656,6 +667,7 @@
 
 							</tr>
                             <%}%>
+							</tbody>
 						</table>
 					</div>
 				</div>
