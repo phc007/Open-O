@@ -25,22 +25,21 @@
 
 package oscar.oscarEncounter.pageUtil;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.struts.util.MessageResources;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
 import oscar.util.DateUtils;
 import oscar.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -100,9 +99,21 @@ public class EctDisplayConsultAction extends EctDisplayAction {
             Date date;
             for (int idx = theRequests.ids.size() - 1; idx >= 0; --idx ){
                 NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
-                String service =  theRequests.service.get(idx);
-                String dateStr    =  theRequests.date.get(idx);
-                String status = theRequests.status.get(idx);
+
+                String service = "";
+                String dateStr = "";
+                String status = "";
+
+                if(theRequests.service != null && !theRequests.service.isEmpty()) {
+                    service =  theRequests.service.get(idx);
+                }
+                if(theRequests.date != null && !theRequests.date.isEmpty()) {
+                    dateStr    =  theRequests.date.get(idx);
+                }
+                if(theRequests.status != null && !theRequests.status.isEmpty()) {
+                    status = theRequests.status.get(idx);
+                }
+
                 DateFormat formatter = new SimpleDateFormat(dbFormat);
                 try {
                     date = formatter.parse(dateStr);

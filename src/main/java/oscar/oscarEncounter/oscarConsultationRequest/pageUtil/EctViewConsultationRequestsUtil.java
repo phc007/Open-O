@@ -25,24 +25,20 @@
 
 package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
-
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.ConsultationRequestDao;
 import org.oscarehr.common.dao.ConsultationServiceDao;
-import org.oscarehr.common.model.ConsultationRequest;
-import org.oscarehr.common.model.ConsultationServices;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.ProfessionalSpecialist;
-import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.*;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 public class EctViewConsultationRequestsUtil {         
    
@@ -192,9 +188,9 @@ public class EctViewConsultationRequestsUtil {
           ConsultationServices services;
           String providerId, providerName;
 
-          List consultList = consultReqDao.getConsults(Integer.parseInt(demoNo));
+          List<ConsultationRequest> consultList = consultReqDao.getConsults(Integer.parseInt(demoNo));
           for( int idx = 0; idx < consultList.size(); ++idx ) {
-              consult = (ConsultationRequest)consultList.get(idx);
+              consult = consultList.get(idx);
               demo = demoManager.getDemographic(loggedInInfo, consult.getDemographicId());
               providerId = demo.getProviderNo();
               if( providerId != null && !providerId.equals("")) {
@@ -211,7 +207,13 @@ public class EctViewConsultationRequestsUtil {
               status.add(consult.getStatus());
               patient.add(demo.getFormattedName());
               provider.add(providerName);
-              service.add(services.getServiceDesc());
+
+              if(services != null) {
+                 service.add(services.getServiceDesc());
+              } else {
+                  service.add("UNKNOWN");
+              }
+
               urgency.add(consult.getUrgency());
               patientWillBook.add(""+consult.isPatientWillBook());
               date.add(DateFormatUtils.ISO_DATE_FORMAT.format(consult.getReferralDate()));
