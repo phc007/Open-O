@@ -79,18 +79,14 @@ if(!authed) {
 <%@page import="org.oscarehr.common.dao.ContactSpecialtyDao" %>
 <%@page import="org.oscarehr.common.dao.DemographicContactDao" %>
 <%@page import="org.oscarehr.common.model.ContactSpecialty" %>
-<%@ page import="org.oscarehr.common.model.enumerator.ConsultationRequestExtKey" %>
-<%@ page import="org.oscarehr.common.dao.ConsultationRequestExtDao" %>
 <%@ page import="org.oscarehr.managers.ConsultationManager" %>
 <%@ page import="oscar.oscarEncounter.data.EctFormData" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.oscarehr.common.model.EFormData" %>
-<%@ page import="oscar.eform.EFormUtil" %>
 <%@ page import="oscar.oscarLab.ca.all.Hl7textResultsData" %>
 <%@ page import="org.oscarehr.documentManager.EDocUtil" %>
 <%@ page import="org.oscarehr.documentManager.EDoc" %>
 <%@ page import="oscar.util.StringUtils" %>
-
 
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 <!DOCTYPE html>
@@ -288,7 +284,7 @@ if( demo != null && "true".equals( props.getProperty("ENABLE_HEALTH_CARE_TEAM_IN
 	if( currentSpecialistIdInt < 0 ) {
 
 		// Set the DemographicContact list into an array for further processing.
-		// This list contains a guranteed id from the ProfessionalSpecialist model
+		// This list contains a guaranteed id from the ProfessionalSpecialist model
 		for( DemographicContact demographicContact : demographicContacts ) {	
 			// separate method to check the current list for existing professionalSpecialist
 			// This will determine if a new DemographicContact should be created. 
@@ -510,27 +506,10 @@ private static void setHealthCareTeam( List<DemographicContact> demographicConta
      jQuery.noConflict();
    </script>
 
-<!-- Instead of importing conreq.js using the CME tag (as done in Oscar19/OscarPro), we are opting to directly import conreq.js without utilizing the CME tag. -->
-<% if ("ocean".equals(props.get("cme_js"))) { 
-	int randomNo = new Random().nextInt();%>
-<script id="mainScript" src="${ pageContext.request.contextPath }/js/custom/ocean/conreq.js?no-cache=<%=randomNo%>&autoRefresh=true" ocean-host=<%=Encode.forUriComponent(props.getProperty("ocean_host"))%>></script>
-<% } %>
 <link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/css/healthCareTeam.css" />
 <link rel="stylesheet" type="text/css" href="${ pageContext.request.contextPath }/oscarEncounter/encounterStyles.css">
 
 <style type="text/css">
-
-/* Ocean refer style */
-span.oceanRefer	{
-	display: flex;
-	align-items: center;
-    padding-top:20px
-}
-	
-span.oceanRefer a {
-	margin-right: 5px;
-}
-/* End of Ocean refer style */
 
 #attachedDocumentTable {
     border: blue thin solid;
@@ -646,23 +625,16 @@ var specialistFaxNumber = "";
 				configScript = new oscar.oscarEncounter.oscarConsultationRequest.config.data.EctConConfigurationJavascriptData();
 				out.println(configScript.getJavascript());%>
 
-/////////////////////////////////////////////////////////////////////
 function initMaster() {
 	makeSpecialistslist(2);
 }
-//-------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////
-// create car make objects and fill arrays
-//==========
-function K( serviceNumber, service ){
+// make constructor
+function Service(){
 
-	//servicesName[service] = new ServicesName(serviceNumber);
-        servicesName[service] = serviceNumber;
-	services[serviceNumber] = new Service( );
+	this.specialists = new Array();
 }
-//-------------------------------------------------------------------
-	
+
 	//-----------------disableDateFields() disables date fields if "Patient Will Book" selected
 	var disableFields=false;
 </script>
@@ -829,15 +801,6 @@ function ServicesName( makeNumber ){
 
 	this.serviceNumber = makeNumber;
 }
-//-------------------------------------------------------------------
-
-/////////////////////////////////////////////////////////////////////
-// make constructor
-function Service(  ){
-
-	this.specialists = new Array();
-}
-//-------------------------------------------------------------------
 
 /////////////////////////////////////////////////////////////////////
 // construct model selection on page
@@ -951,6 +914,7 @@ function initSpec() {
 
 /////////////////////////////////////////////////////////////////////
 function initService(ser,name,spec,specname,phone,fax,address){
+	console.log("INIT: " + ser + " " + name + " " + spec + " " + specname + " " + phone + " " + fax + " " + address)
 	var i = 0;
 	var isSel = 0;
 	var strSer = new String(ser);
@@ -1012,9 +976,9 @@ function onSelectSpecialist(SelectedSpec)	{
     
 	// load the text fields with phone fax and address for past consult review even if spec has been removed from service list
 	<%if(requestId!=null && ! "null".equals( consultUtil.specialist ) ){ %>
-	form.phone.value = '<%=Encode.forHtmlAttribute(consultUtil.specPhone)%>';
-	form.fax.value = '<%=Encode.forHtmlAttribute(consultUtil.specFax)%>';
-	form.address.value = '<%=Encode.forHtmlAttribute(consultUtil.specAddr) %>';
+	form.phone.value = '<%=Encode.forJavaScript(consultUtil.specPhone)%>';
+	form.fax.value = '<%=Encode.forJavaScript(consultUtil.specFax)%>';
+	form.address.value = '<%=Encode.forJavaScript(consultUtil.specAddr) %>';
 
 	//make sure this dislaimer is displayed
 	document.getElementById("consult-disclaimer").style.display='inline';
@@ -1041,7 +1005,6 @@ function onSelectSpecialist(SelectedSpec)	{
             	jQuery.post(ctx + "/getProfessionalSpecialist.do", {id: aSpeci.specNbr},
                     function(xml)
                     {
-						console.log(xml);
                         let hasUrl = xml.eDataUrl != null && xml.eDataUrl !== "";
                         enableDisableRemoteReferralButton(form, !hasUrl);
                         let annotation = document.getElementById("annotation");
@@ -1055,6 +1018,18 @@ function onSelectSpecialist(SelectedSpec)	{
         }//spec loop
 	 
 	}
+
+/////////////////////////////////////////////////////////////////////
+// create car make objects and fill arrays
+//==========
+function K( serviceNumber, service ){
+
+	//servicesName[service] = new ServicesName(serviceNumber);
+	servicesName[service] = serviceNumber;
+	services[serviceNumber] = new Service();
+}
+//-------------------------------------------------------------------
+
 
 function updateEFormLink(eformID) {
     if (eformID > 0) {
@@ -1075,7 +1050,7 @@ function FillThreeBoxes(serNbr)	{
 
         for( var idx = 0; idx < specs.length; ++idx ) {
             aSpeci = specs[idx];									// get the specialist Object for the currently selected spec
-            if( aSpeci.specNbr == serNbr ) {
+            if( aSpeci.specNbr === serNbr ) {
                 document.EctConsultationFormRequestForm.phone.value = (aSpeci.phoneNum);
                 document.EctConsultationFormRequestForm.fax.value = (aSpeci.specFax);					// load the text fields with phone fax and address
                 document.EctConsultationFormRequestForm.address.value = (aSpeci.specAddress);
@@ -1329,8 +1304,6 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 		}
 	}
 } %>
-console.log(providerData);
-
 function switchProvider(value) {
 
 	if (value === -1) {
@@ -1611,14 +1584,6 @@ function clearAppointmentDateAndTime() {
 						<%=thisForm.getPatientName()%> <%=thisForm.getPatientSex()%> <%=thisForm.getPatientAge()%>
 						</h2>
 					</td>
-						<% if ("ocean".equals(props.get("cme_js"))) { %>
-					<td>						
-                        <span id="ocean" style="display:none"></span>
-                        <% if (requestId == null) { %>
-						<span id="oceanReferButton" class="oceanRefer"></span>
-					</td>
-						<% }
-						}%>
 				</tr>
 			</table>
 			</td>
@@ -1679,25 +1644,6 @@ function clearAppointmentDateAndTime() {
 					</table>
 					</td>
 				</tr>
-				<%
-					if (thisForm.iseReferral())
-					{
-						%>
-							<tr>
-								<td colspan="2">
-								<table>
-									<tr>
-										<td class="stat"><html:radio property="status" value="5" />
-										</td>
-										<td class="stat"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgBookCon" />
-										</td>
-									</tr>
-								</table>
-								</td>
-							</tr>
-						<%
-					}
-				%>
 				<tr>
 					<td colspan="2">
 					<table>
@@ -1820,18 +1766,6 @@ function clearAppointmentDateAndTime() {
 			<table cellpadding="0" cellspacing="2"
 				style="border-collapse: collapse" bordercolor="#111111" width="100%"
 				height="100%" border=1>
-				<% if (requestId != null && "ocean".equals(props.get("cme_js"))) {
-					ConsultationRequestExtDao consultationRequestExtDao = SpringUtils.getBean(ConsultationRequestExtDao.class);
-					Integer consultId = Integer.parseInt(requestId);
-					String eReferralRef = consultationRequestExtDao.getConsultationRequestExtsByKey(consultId, ConsultationRequestExtKey.EREFERRAL_REF.getKey());
-					if(eReferralRef != null) {
-				%>
-				<input id="ereferral_ref" type="hidden" value="<%= Encode.forHtmlAttribute(eReferralRef) %>"/>
-				<span id="editOnOcean" class="oceanRefer"></span>
-				<%	}
-				   } %>
-				<!----Start new rows here-->
-				<% if (thisForm.geteReferralId() == null) { %>
 				<tr>
 					<td class="tite4 controlPanel" colspan=2>
 	
@@ -1869,14 +1803,13 @@ function clearAppointmentDateAndTime() {
 					<% } %>
 					</td>
                 </tr>
-				<% } %>
                     <tr class="consultDemographicData" >
 					<td>
 
 					<table>
 						<% if (props.isConsultationFaxEnabled() && OscarProperties.getInstance().isPropertyActive("consultation_dynamic_labelling_enabled")) { %>
 						<tr>
-							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgAssociated2" /></td>
+							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgAssociated2" /></td>
 							<td  class="tite1">
 								<html:select property="providerNo" onchange="switchProvider(this.value)">
 									<%
@@ -1930,11 +1863,11 @@ function clearAppointmentDateAndTime() {
 								<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formService" />
 								</td>
 								<td  class="tite3">
-								<% if (thisForm.iseReferral() && !thisForm.geteReferralService().isEmpty()) { %>
-									<%= thisForm.geteReferralService() %>
-								<% } else { %>
+<%--								<% if (thisForm.iseReferral() && !thisForm.geteReferralService().isEmpty()) { %>--%>
+<%--									<%= thisForm.geteReferralService() %>--%>
+<%--								<% } else { %>--%>
 									<html:select styleId="service" property="service" onchange="fillSpecialistSelect(this);"></html:select>
-								<% } %>							
+<%--								<% } %>							--%>
 								</td>
 							</tr>
 						</oscar:oscarPropertiesCheck>
@@ -2410,7 +2343,7 @@ function clearAppointmentDateAndTime() {
 								<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formClinInf" />						
 							</td>
 							<td id="clinicalInfoButtonBar" class="tite4 buttonBar" >
-								<% if (thisForm.geteReferralId() == null) { %>
+
 								<input id="SocHistory_clinicalInformation" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" />
 								<input id="FamHistory_clinicalInformation" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>"  />
 								<input id="MedHistory_clinicalInformation" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>"  />
@@ -2420,7 +2353,7 @@ function clearAppointmentDateAndTime() {
 								<input id="RiskFactors_clinicalInformation" type="button" class="btn clinicalData" value="Risk Factors" />
 								<input id="fetchMedications_clinicalInformation" type="button" class="btn medicationData" value="Active Medications" />
 								<input id="fetchLongTermMedications_clinicalInformation" type="button" class="btn medicationData" value="Long Term Medications" />
-								<% } %>
+
 							</td>
 						</tr>
 					</table>
@@ -2448,7 +2381,6 @@ function clearAppointmentDateAndTime() {
  %>
 							</td>
 							<td id="concurrentProblemsButtonBar" class="tite4 buttonBar">
-								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="SocHistory_concurrentProblems" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" />
 								<input id="FamHistory_concurrentProblems" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>"  />
 								<input id="MedHistory_concurrentProblems" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>"  />
@@ -2458,7 +2390,6 @@ function clearAppointmentDateAndTime() {
 								<input id="RiskFactors_concurrentProblems" type="button" class="btn clinicalData" value="Risk Factors" />
 								<input id="fetchMedications_concurrentProblems" type="button" class="btn medicationData" value="Active Medications" />
 								<input id="fetchLongTermMedications_concurrentProblems" type="button" class="btn medicationData" value="Long Term Medications" />
-								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2483,11 +2414,9 @@ function clearAppointmentDateAndTime() {
 								<% }  %>
 							</td>
 							<td id="medsButtonBar" class="tite4 buttonBar">
-								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="OMeds_currentMedications" type="button" class="btn clinicalData" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportOtherMeds"/>"  />								
 								<input id="fetchMedications_currentMedications" type="button" class="btn medicationData" value="Active Medications" />
 								<input id="fetchLongTermMedications_currentMedications" type="button" class="btn medicationData" value="Long Term Medications" />
-								<% } %>
 							</td>
 						</tr>
 					</table>
@@ -2506,9 +2435,7 @@ function clearAppointmentDateAndTime() {
 							<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formAllergies" />
 							</td>
 							<td class="tite4 buttonBar">
-								<% if (thisForm.geteReferralId() == null) { %>
 								<input id="fetchAllergies_allergies" type="button" class="btn medicationData" value="Allergies" />
-								<% } %>
 							</td>
 						</tr>						
 						</table>
@@ -2544,8 +2471,6 @@ function clearAppointmentDateAndTime() {
 				</tr>
 				<tr><td colspan=2 class="spacer"></td></tr>
 				<% }%>
-
-				<% if (thisForm.geteReferralId() == null) { %>
 				<tr>
 
 				<td colspan=2 class="tite4 controlPanel">
@@ -2599,13 +2524,12 @@ function clearAppointmentDateAndTime() {
 						
 					</td>
 				</tr>
-				<% } %>
-				
+
 			<script type="text/javascript">
-			//<!--
 				function initConsultationServices() {
+					console.log("init service");
 					initMaster();
-			        initService('<%=consultUtil.service%>','<%=((consultUtil.service==null)?"":Encode.forJavaScript(consultUtil.getServiceName(consultUtil.service.toString())))%>','<%=consultUtil.specialist%>','<%=((consultUtil.specialist==null)?"":Encode.forJavaScript(consultUtil.getSpecailistsName(consultUtil.specialist.toString())))%>','<%=Encode.forJavaScript(consultUtil.specPhone)%>','<%=Encode.forJavaScript(consultUtil.specFax)%>','<%=Encode.forJavaScript(consultUtil.specAddr)%>');
+			        initService('<%=consultUtil.service%>','<%=((consultUtil.service==null)?"":Encode.forJavaScript(consultUtil.getServiceName(consultUtil.service)))%>','<%=consultUtil.specialist%>','<%=((consultUtil.specialist==null)?"":Encode.forJavaScript(consultUtil.getSpecailistsName(consultUtil.specialist)))%>','<%=Encode.forJavaScript(consultUtil.specPhone)%>','<%=Encode.forJavaScript(consultUtil.specFax)%>','<%=Encode.forJavaScript(consultUtil.specAddr)%>');
 		            initSpec();
 		            
 		            document.EctConsultationFormRequestForm.phone.value = ("");
@@ -2651,12 +2575,12 @@ function clearAppointmentDateAndTime() {
 		            	}
 		            %>
 				}
-        //-->
         </script>
         
        	<oscar:oscarPropertiesCheck value="false" property="ENABLE_HEALTH_CARE_TEAM_IN_CONSULTATION_REQUESTS" defaultVal="false" >
 			<script type="text/javascript">
 			//<!--
+			console.log("healthcare team");
 				initConsultationServices();
 			//-->
 			</script>
