@@ -25,25 +25,11 @@
 
 package org.oscarehr.common.model;
 
+import org.apache.commons.lang.StringUtils;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import org.apache.commons.lang.StringUtils;
 
 @Entity
 @Table(name = "consultationRequests")
@@ -62,7 +48,7 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
 
 	private Integer serviceId;
 
-	@ManyToOne(fetch=FetchType.EAGER, targetEntity=ProfessionalSpecialist.class)
+	@ManyToOne(fetch=FetchType.EAGER, targetEntity=ProfessionalSpecialist.class, cascade= CascadeType.MERGE)
 	@JoinColumn( name="specId", referencedColumnName="specId"  )
 	private ProfessionalSpecialist professionalSpecialist;
 	
