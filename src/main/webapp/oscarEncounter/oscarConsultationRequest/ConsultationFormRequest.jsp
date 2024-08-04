@@ -1014,7 +1014,7 @@ function onSelectSpecialist(SelectedSpec)	{
 	<%if(requestId!=null && ! "null".equals( consultUtil.specialist ) ){ %>
 	form.phone.value = '<%=Encode.forHtmlAttribute(consultUtil.specPhone)%>';
 	form.fax.value = '<%=Encode.forHtmlAttribute(consultUtil.specFax)%>';
-	form.address.value = '<%=Encode.forHtmlAttribute(consultUtil.specAddr) %>';
+	form.address.value = '<%=Encode.forHtmlAttribute(consultUtil.specAddr).replace("\n", "\\n") %>';
 
 	//make sure this dislaimer is displayed
 	document.getElementById("consult-disclaimer").style.display='inline';
