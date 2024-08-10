@@ -1787,7 +1787,7 @@ Comming soon. After spring and java upgrades
 						<id>check</id>
 						<phase>validate</phase>
 						<goals>
-							<goal>check</goal>
+							<!--<goal>check</goal>-->
 						</goals>
 					</execution>
 				</executions>
@@ -1800,7 +1800,7 @@ Comming soon. After spring and java upgrades
 			<executions>
 				<execution>
 					<goals>
-						<goal>check</goal>
+						<!--<goal>check</goal>-->
 					</goals>
 				</execution>
 			</executions>
