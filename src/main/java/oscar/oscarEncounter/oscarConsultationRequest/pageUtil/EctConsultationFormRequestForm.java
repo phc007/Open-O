@@ -25,10 +25,6 @@
 
 package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 
-import java.util.HashMap;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionErrors;
@@ -36,6 +32,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.oscarehr.util.WebUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 
 public final class EctConsultationFormRequestForm extends ActionForm {
 
@@ -123,6 +122,8 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	private String[] formNo;
 	private String[] eFormNo;
 	private String[] hrmNo;
+
+	private String faxAccount;
 	
 
 	public String getProfessionalSpecialistName() {
@@ -673,5 +674,13 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	
 	public void setHrmNo(String[] hrmNo) {
 		this.hrmNo = hrmNo;
+	}
+
+	public String getFaxAccount() {
+		return faxAccount;
+	}
+
+	public void setFaxAccount(String faxAccount) {
+		this.faxAccount = faxAccount;
 	}
 }
