@@ -2624,3 +2624,7 @@ bromyalgia', '41'), ('73390', 'osteopenia', '42'), ('7506', 'Hiatis Hernia', '43
 
 -- From update-2019-06-13.sql
 update ServiceClient set lifetime = -1 where lifetime is null;
+
+INSERT INTO `property` (`name`, `value`, `provider_no`) VALUES ('default_ref_prac', '1', '999998');
+INSERT INTO `property` (`name`, `value`, `provider_no`) VALUES ('consultation_letterheadname_default', '1', '999998');
+
